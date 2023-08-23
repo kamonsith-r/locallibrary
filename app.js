@@ -1,7 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const createError = require('http-errors')
 const app = express()
-const port = 3000
+const { PORT = 8000 } = process.env
 
 app.set('view engine', 'ejs')
 app.use(express.json())
@@ -18,4 +19,4 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json(res.locals)
 })
 
-app.listen(port, () => console.log(`App listening on port ${port}`))
+app.listen(PORT, () => console.log(`App listening on port ${PORT}`))
