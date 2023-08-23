@@ -1,0 +1,15 @@
+{
+  "name": "locallibrary",
+  "version": "0.0.1",
+  "engines": {
+    "node": "18.17.1"
+  },
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "http-errors": "^2.0.0",
+    "mongoose": "^7.4.4"
+  }
+}
