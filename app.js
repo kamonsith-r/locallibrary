@@ -8,6 +8,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(express.static('public'))
 app.use('/', require('./routes/index'))
+app.use('/users', require('./routes/users'))
 app.use((req, res, next) => {
   next(createError(404))
 })
