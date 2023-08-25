@@ -27,7 +27,7 @@ const schema = new mongoose.Schema({
 
 schema.virtual('url')
   .get(function () {
-    return `/catalog/bookinstance/${this._id}`
+    return `/catalog/bookInstance/${this._id}`
   })
 
 module.exports = mongoose.model('BookInstance', schema)
