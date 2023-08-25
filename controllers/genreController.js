@@ -1,4 +1,5 @@
 const Genre = require('../models/genre')
+const Book = require('../models/book')
 const asyncHandler = require('express-async-handler')
 
 exports.genreList = asyncHandler(async (req, res, next) => {
@@ -8,7 +9,19 @@ exports.genreList = asyncHandler(async (req, res, next) => {
 })
 
 exports.genreDetail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: Genre detail: ${req.params.id}`)
+  const { params } = req
+  const [genre, booksInGenre] = await Promise.all([
+    Genre.findById(params.id),
+    Book.find()
+      .where('genre').equals(params.id)
+      .select('title summary'),
+  ])
+  if (genre === null) {
+    const err = new Error('Genre not found')
+    err.status = 404
+    return next(err)
+  }
+  return res.json({ title: 'Genre Detail', genre, booksInGenre })
 })
 
 exports.genreCreateGET = asyncHandler(async (req, res, next) => {
