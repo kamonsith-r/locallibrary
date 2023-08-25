@@ -8,7 +8,15 @@ exports.bookInstanceList = asyncHandler(async (req, res, next) => {
 })
 
 exports.bookInstanceDetail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: BookInstance detail: ${req.params.id}`)
+  const { params } = req
+  const bookInstance = await BookInstance.findById(params.id)
+    .populate('book')
+  if (bookInstance === null) {
+    const err = new Error('Book copy not found')
+    err.status = 404
+    return next(err)
+  }
+  return res.json({ title: 'Book:', bookInstance })
 })
 
 exports.bookInstanceCreateGET = asyncHandler(async (req, res, next) => {
