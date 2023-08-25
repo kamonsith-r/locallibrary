@@ -28,7 +28,19 @@ exports.bookList = asyncHandler(async (req, res, next) => {
 })
 
 exports.bookDetail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: Book detail: ${req.params.id}`)
+  const { params } = req
+  const [book, bookInstances] = await Promise.all([
+    Book.findById(params.id)
+      .populate('author genre'),
+    BookInstance.find()
+      .where('book').equals(params.id)
+  ])
+  if (book === null) {
+    const err = new Error('Book not found')
+    err.status = 404
+    return next(err)
+  }
+  return res.json({ title: book.title, book, bookInstances })
 })
 
 exports.bookCreateGET = asyncHandler(async (req, res, next) => {
