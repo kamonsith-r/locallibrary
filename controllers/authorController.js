@@ -1,4 +1,5 @@
 const Author = require('../models/author')
+const Book = require('../models/book')
 const asyncHandler = require('express-async-handler')
 
 exports.authorList = asyncHandler(async (req, res, next) => {
@@ -8,7 +9,19 @@ exports.authorList = asyncHandler(async (req, res, next) => {
 })
 
 exports.authorDetail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: Author detail: ${req.params.id}`)
+  const { params } = req
+  const [author, authorBooks] = await Promise.all([
+    Author.findById(params.id),
+    Book.find()
+      .where('author').equals(params.id)
+      .select('title summary')
+  ])
+  if (author === null) {
+    const err = new Error('Author not found')
+    err.status = 404
+    return next(err)
+  }
+  res.json({ title: 'Author Detail', author, authorBooks })
 })
 
 exports.authorCreateGET = asyncHandler(async (req, res, next) => {
