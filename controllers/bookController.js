@@ -19,7 +19,7 @@ exports.index = asyncHandler(async (req, res, next) => {
   })
 })
 
-exports.book_list = asyncHandler(async (req, res, next) => {
+exports.bookList = asyncHandler(async (req, res, next) => {
   const bookList = await Book.find()
     .select('title')
     .sort('title')
@@ -27,30 +27,30 @@ exports.book_list = asyncHandler(async (req, res, next) => {
   return res.json({ title: 'Book List', bookList })
 })
 
-exports.book_detail = asyncHandler(async (req, res, next) => {
+exports.bookDetail = asyncHandler(async (req, res, next) => {
   res.send(`NOT IMPLEMENTED: Book detail: ${req.params.id}`)
 })
 
-exports.book_create_get = asyncHandler(async (req, res, next) => {
+exports.bookCreateGET = asyncHandler(async (req, res, next) => {
   res.send('NOT IMPLEMENTED: Book create GET')
 })
 
-exports.book_create_post = asyncHandler(async (req, res, next) => {
+exports.bookCreatePOST = asyncHandler(async (req, res, next) => {
   res.send('NOT IMPLEMENTED: Book create POST')
 })
 
-exports.book_delete_get = asyncHandler(async (req, res, next) => {
+exports.bookDeleteGET = asyncHandler(async (req, res, next) => {
   res.send('NOT IMPLEMENTED: Book delete GET')
 })
 
-exports.book_delete_post = asyncHandler(async (req, res, next) => {
+exports.bookDeletePOST = asyncHandler(async (req, res, next) => {
   res.send('NOT IMPLEMENTED: Book delete POST')
 })
 
-exports.book_update_get = asyncHandler(async (req, res, next) => {
+exports.bookUpdateGET = asyncHandler(async (req, res, next) => {
   res.send('NOT IMPLEMENTED: Book update GET')
 })
 
-exports.book_update_post = asyncHandler(async (req, res, next) => {
+exports.bookUpdatePOST = asyncHandler(async (req, res, next) => {
   res.send('NOT IMPLEMENTED: Book update POST')
 })
