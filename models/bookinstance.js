@@ -20,6 +20,9 @@ const schema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+}, {
+  id: false,
+  toJSON: { virtuals: true }
 })
 
 schema.virtual('url')
