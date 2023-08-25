@@ -7,6 +7,9 @@ const schema = new mongoose.Schema({
     minlength: 3,
     maxlength: 100
   }
+}, {
+  id: false,
+  toJSON: { virtuals: true }
 })
 
 schema.virtual('url')
