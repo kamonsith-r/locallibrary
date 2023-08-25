@@ -7,7 +7,7 @@ const schema = new mongoose.Schema({
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Author ',
+    ref: 'Author',
     required: true
   },
   summary: {
@@ -20,8 +20,11 @@ const schema = new mongoose.Schema({
   },
   genre: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Genre '
+    ref: 'Genre'
   }]
+}, {
+  id: false,
+  toJSON: { virtuals: true }
 })
 
 schema.virtual('url')

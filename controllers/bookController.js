@@ -7,11 +7,11 @@ const asyncHandler = require('express-async-handler')
 exports.index = asyncHandler(async (req, res, next) => {
   const [bookCount, bookInstanceCount, bookInstanceAvailableCount, authorCount, genreCount]
     = await Promise.all([
-      Book.countDocuments({}).exec(),
-      BookInstance.countDocuments({}).exec(),
-      BookInstance.countDocuments({ status: 'Available' }).exec(),
-      Author.countDocuments({}).exec(),
-      Genre.countDocuments({}).exec(),
+      Book.countDocuments(),
+      BookInstance.countDocuments(),
+      BookInstance.countDocuments({ status: 'Available' }),
+      Author.countDocuments(),
+      Genre.countDocuments(),
     ])
   return res.json({
     title: 'Local Library Home',
@@ -20,7 +20,11 @@ exports.index = asyncHandler(async (req, res, next) => {
 })
 
 exports.book_list = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Book list')
+  const bookList = await Book.find()
+    .select('title')
+    .sort('title')
+    .populate('author', 'first_name family_name')
+  return res.json({ title: 'Book List', bookList })
 })
 
 exports.book_detail = asyncHandler(async (req, res, next) => {
