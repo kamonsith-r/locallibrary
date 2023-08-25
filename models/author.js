@@ -17,6 +17,9 @@ const schema = new mongoose.Schema({
   date_of_death: {
     type: Date
   }
+}, {
+  id: false,
+  toJSON: { virtuals: true }
 })
 
 schema.virtual('name')
