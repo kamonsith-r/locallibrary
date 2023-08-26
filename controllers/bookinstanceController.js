@@ -1,5 +1,7 @@
-const BookInstance = require('../models/bookInstance')
 const asyncHandler = require('express-async-handler')
+const { body, validationResult } = require('express-validator')
+const BookInstance = require('../models/bookInstance')
+const Book = require('../models/book')
 
 exports.bookInstanceList = asyncHandler(async (req, res, next) => {
   const bookInstanceList = await BookInstance.find()
@@ -20,12 +22,30 @@ exports.bookInstanceDetail = asyncHandler(async (req, res, next) => {
 })
 
 exports.bookInstanceCreateGET = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: BookInstance create GET')
+  const bookList = await Book.find().select('title')
+  return res.json({ title: 'Create BookInstance', bookList })
 })
 
-exports.bookInstanceCreatePOST = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: BookInstance create POST')
-})
+exports.bookInstanceCreatePOST = [
+  body('book', 'Book must be specified').trim().isLength({ min: 1 }).escape(),
+  body('imprint', 'Imprint must be specified').trim().isLength({ min: 1 }).escape(),
+  body('status').escape(),
+  body('due_back', 'Invalid date').optional({ values: 'falsy' }).isISO8601().toDate(),
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req)
+    const bookInstance = new BookInstance(req.body)
+    if (!errors.isEmpty()) {
+      const bookList = await Book.find().select('title')
+      return res.json({
+        title: 'Create BookInstance',
+        selectedBook: bookInstance.book?._id,
+        errors: errors.array(),
+        bookList, bookInstance
+      })
+    }
+    await bookInstance.save()
+    return res.redirect(bookInstance.url)
+  })]
 
 exports.bookInstanceDeleteGET = asyncHandler(async (req, res, next) => {
   res.send('NOT IMPLEMENTED: BookInstance delete GET')
