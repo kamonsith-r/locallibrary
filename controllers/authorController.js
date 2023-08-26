@@ -4,18 +4,14 @@ const Author = require('../models/author')
 const Book = require('../models/book')
 
 exports.authorList = asyncHandler(async (req, res, next) => {
-  const authorList = await Author.find()
-    .sort('family_name')
+  const authorList = await Author.find().sort('family_name')
   return res.json({ title: 'Author List', authorList })
 })
 
 exports.authorDetail = asyncHandler(async (req, res, next) => {
-  const { params } = req
   const [author, authorBooks] = await Promise.all([
-    Author.findById(params.id),
-    Book.find()
-      .where('author').equals(params.id)
-      .select('title summary')
+    Author.findById(req.params.id),
+    Book.find().where('author').equals(req.params.id).select('title summary')
   ])
   if (author === null) {
     const err = new Error('Author not found')
@@ -31,54 +27,74 @@ exports.authorCreateGET = asyncHandler(async (req, res, next) => {
 
 exports.authorCreatePOST = [
   body('first_name')
-    .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .withMessage('First name must be specified.')
-    .isAlphanumeric()
-    .withMessage('First name has non-alphanumeric characters.'),
+    .trim().isLength({ min: 1 }).escape().withMessage('First name must be specified.')
+    .isAlphanumeric().withMessage('First name has non-alphanumeric characters.'),
   body('family_name')
-    .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .withMessage('Family name must be specified.')
-    .isAlphanumeric()
-    .withMessage('Family name has non-alphanumeric characters.'),
+    .trim().isLength({ min: 1 }).escape().withMessage('Family name must be specified.')
+    .isAlphanumeric().withMessage('Family name has non-alphanumeric characters.'),
   body('date_of_birth', 'Invalid date of birth')
-    .optional({ values: 'falsy' })
-    .isISO8601()
-    .toDate(),
+    .optional({ values: 'falsy' }).isISO8601().toDate(),
   body('date_of_death', 'Invalid date of death')
-    .optional({ values: 'falsy' })
-    .isISO8601()
-    .toDate(),
+    .optional({ values: 'falsy' }).isISO8601().toDate(),
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req)
-    const author = new Author({
-      first_name: req.body.first_name,
-      family_name: req.body.family_name,
-      date_of_birth: req.body.date_of_birth,
-      date_of_death: req.body.date_of_death
-    })
+    const author = new Author(req.body)
     if (!errors.isEmpty()) {
-      return res.json({ title: 'Create Author', author, errors: errors.array() })
+      return res.json({ title: 'Create Author', errors: errors.array(), author })
     }
     await author.save()
     return res.redirect(author.url)
   })]
 
 exports.authorDeleteGET = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Author delete GET')
+  const [author, authorBooks] = await Promise.all([
+    Author.findById(req.params.id),
+    Book.find().where('author').equals(req.params.id).select('title summary')
+  ])
+  if (author === null) {
+    return res.redirect('/catalog/authors')
+  }
+  return res.json({ title: 'Delete Author', author, authorBooks })
 })
 
 exports.authorDeletePOST = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Author delete POST')
+  const [author, authorBooks] = await Promise.all([
+    Author.findById(req.params.id),
+    Book.find().where('author').equals(req.params.id).select('title summary')
+  ])
+  if (authorBooks.length > 0) {
+    return res.json({ title: 'Delete Author', author, authorBooks })
+  }
+  await Author.findByIdAndRemove(req.body.authorid)
+  return res.redirect('/catalog/authors')
 })
 
 exports.authorUpdateGET = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Author update GET')
+  const author = await Author.findById(req.params.id)
+  if (author === null) {
+    const err = new Error('Author not found')
+    err.status = 404
+    return next(err)
+  }
+  return res.json({ title: 'Update Author', author })
 })
 
-exports.authorUpdatePOST = asyncHandler(async (req, res, next) => {
-  res.send('NOT IMPLEMENTED: Author update POST')
-})
+exports.authorUpdatePOST = [
+  body('first_name')
+    .trim().isLength({ min: 1 }).escape().withMessage('First name must be specified.')
+    .isAlphanumeric().withMessage('First name has non-alphanumeric characters.'),
+  body('family_name')
+    .trim().isLength({ min: 1 }).escape().withMessage('Family name must be specified.')
+    .isAlphanumeric().withMessage('Family name has non-alphanumeric characters.'),
+  body('date_of_birth', 'Invalid date of birth').optional({ values: 'falsy' }).isISO8601().toDate(),
+  body('date_of_death', 'Invalid date of death').optional({ values: 'falsy' }).isISO8601().toDate(),
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req)
+    const author = new Author(req.body)
+    author._id = req.params.id
+    if (!errors.isEmpty()) {
+      return res.json({ title: 'Update Author', errors: errors.array(), author })
+    }
+    await Author.findByIdAndUpdate(req.params.id, author)
+    return res.redirect(author.url)
+  })]
